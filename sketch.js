@@ -1,5 +1,16 @@
 //https://editor.p5js.org/howshekilledit/sketches/P00w6cEmL
 let piano_init = false;
+let notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+//array
+let words = ["Playing", "music", "is", "fun!"];
+
+let colors = {bg: '#00A36C', start_clr: '#7851a9', end_clr: '#d4af37'};
+
+//object
+let boxProps = {boxSize: 2, clr1: '#008080', clr2: '#C0C0C0'};
+
+let spheres = {};
+let boxes = {};
 
 //default function plays note on keypress
 
@@ -10,18 +21,25 @@ function triggerNote(note, midi = true) {
         piano_init = true;
     }
     //you can add your own functionality here.
+    if(boxes[note.name].position.y < 4){
+        boxes[note.name].position.y += 0.5;
+    }
+    else{
+        boxes[note.name].position.y = -2;
+    }
+
+    // if(boxes[note.name].position.y < 4){
+    //     boxes[note.name].position.y += 0.5;
+    // }
+    // else{
+    //     boxes[note.name].position.y = -2;
+    // }
 
     //displays note name in browser (you can remove this line)
     document.getElementById('txt').innerText = note.name + note.octave;
 
     //play note using appropriate function given input type
-    if (midi) { //midi keyboard input
-        try {
-            playNote(note.name + note.octave);
-        } catch { }
-    } else { //regular keyboard input
-        synth.triggerAttack(note.name + note.octave);
-    }
+    synth.triggerAttack(note.name + note.octave);
 
 
     //Show what we are receiving
@@ -80,17 +98,33 @@ function keyReleased() {
 function setup() {
     noLoop();
     //color background white
-    scene.clearColor = new BABYLON.Color3.FromHexString('#ffffff');
+    scene.clearColor = new BABYLON.Color3.FromHexString(colors.bg);
 
     //initialize camera
-    var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 4, 100, BABYLON.Vector3.Zero(), scene);
+    var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 4, 15, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
 
     //initialize light
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 1;
 
+    for(let [i, n] of notes.entries()){
+        // console.log(i, n);
+        boxes[n] = createBox(i-3, 0, -2, boxProps.boxSize,boxProps.boxSize,boxProps.boxSize);
+        //var mat = new BABYLON.StandardMaterial('mat', scene);
+        //mat.diffuseColor = babLerpColor(colors.start_clr,colors.end_clr, scene);
+        //spheres[n].material = hexMat(colors.start_clr, scene);
 
+        
+        if(i%2){
+            boxes[n].material = hexMat(boxProps.clr1);
+
+        }
+        else{
+            boxes[n].material = hexMat(boxProps.clr2);
+
+        }
+    }
     synth = new Tone.PolySynth(Tone.MonoSynth, {
         volume: -8,
         oscillator: {
